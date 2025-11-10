@@ -1,0 +1,13 @@
+# Edit requirements.txt to use compatible versions
+cat > requirements.txt << 'EOF'
+streamlit>=1.28.0
+pandas>=2.0.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+joblib>=1.3.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+Pillow>=10.0.0
+setuptools>=65.0.0
+wheel>=0.40.0
+EOF
