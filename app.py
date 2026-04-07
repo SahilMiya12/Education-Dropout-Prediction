@@ -630,3 +630,80 @@ def render_system_info():
 if __name__ == "__main__":
     main()
 
+
+
+
+
+
+
+
+import streamlit as st
+from groq import Groq
+
+# ------------------- CONFIG -------------------
+client = Groq(api_key="sk-xxxxx1")
+
+# ------------------- SESSION -------------------
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+if "show_chat" not in st.session_state:
+    st.session_state.show_chat = False
+
+# ------------------- FLOAT BUTTON -------------------
+col1, col2, col3 = st.columns([8, 1, 1])
+
+with col3:
+    if st.button("💬", use_container_width=True):
+        st.session_state.show_chat = not st.session_state.show_chat
+
+# ------------------- CHAT WINDOW -------------------
+if st.session_state.show_chat:
+    st.markdown("### 🤖 AI Assistant")
+
+    # Show chat
+    for msg in st.session_state.messages:
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
+
+    # Input
+    user_input = st.chat_input("Type your message...")
+
+    if user_input:
+        # Add user message
+        st.session_state.messages.append({
+            "role": "user",
+            "content": user_input
+        })
+
+        # Show user instantly
+        with st.chat_message("user"):
+            st.markdown(user_input)
+
+        # ⚡ SHOW BOT MESSAGE IMMEDIATELY
+        with st.chat_message("assistant"):
+            response_box = st.empty()
+            response_box.markdown("⚡ ...")
+
+            # 🔥 FASTEST MODEL + SHORT CONTEXT
+            response = client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=st.session_state.messages[-4:],  # even shorter
+                max_tokens=80  # limit response length = faster
+            )
+
+            bot_reply = response.choices[0].message.content
+
+            # ⚡ TYPE EFFECT (FASTER FEEL)
+            final_text = ""
+            for word in bot_reply.split():
+                final_text += word + " "
+                response_box.markdown(final_text + "▌")
+
+            response_box.markdown(final_text)
+
+        # Save
+        st.session_state.messages.append({
+            "role": "assistant",
+            "content": bot_reply
+        })
